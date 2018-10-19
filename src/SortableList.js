@@ -101,6 +101,10 @@ export default class SortableList extends Component {
     const {data, order} = this.state;
     let {data: nextData, order: nextOrder} = nextProps;
 
+    if(this.props.scrollEnabled !== nextProps.scrollEnabled) {
+      this.setState({scrollEnabled: nextProps.scrollEnabled})
+    }
+
     if (data && nextData && !shallowEqual(data, nextData)) {
       nextOrder = nextOrder || Object.keys(nextData)
       uniqueRowKey.id++;
@@ -192,18 +196,11 @@ export default class SortableList extends Component {
       horizontal ? {width: contentWidth} : {height: contentHeight},
       innerContainerStyle
     ];
-    let {refreshControl} = this.props;
-
-    if (refreshControl && refreshControl.type === RefreshControl) {
-      refreshControl = React.cloneElement(this.props.refreshControl, {
-        enabled: scrollEnabled, // fix for Android
-      });
-    }
 
     return (
       <View style={containerStyle} ref={this._onRefContainer}>
         <ScrollView
-          refreshControl={refreshControl}
+          bounces={false}
           ref={this._onRefScrollView}
           horizontal={horizontal}
           contentContainerStyle={contentContainerStyle}
@@ -583,6 +580,7 @@ export default class SortableList extends Component {
 
   _onReleaseRow = (rowKey) => {
     this._stopAutoScroll();
+
     this.setState(({activeRowKey}) => ({
       activeRowKey: null,
       activeRowIndex: null,
